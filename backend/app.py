@@ -1,11 +1,19 @@
-from flask import Flask, render_template, send_from_directory
+import os
+
+from flask import Flask
+from flask import render_template
+from flask import send_from_directory
+from flask import request
 from pathlib import Path
 from flask_cors import CORS
+
 from flask_sqlalchemy import SQLAlchemy
 
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///'
+    project_dir = os.path.dirname(os.path.abspath(__file__))
+    database_file = "sqlite:///{}".format(os.path.join(project_dir, "cs157b.db"))
+    SQLALCHEMY_DATABASE_URI = database_file
     SECRET_KEY = 'dev'
     FLASK_ENV = 'development'
 
@@ -14,23 +22,28 @@ app = Flask(__name__, template_folder='../react-app/build', static_folder='../re
 app.config.from_object(Config)
 CORS(app)
 
-# db = SQLAlchemy(app)
-#
-#
-# class User(db.Model):
-#     pass
-#     # db stuff
-#
-#
+db = SQLAlchemy(app)
+
+
+class User(db.Model):
+    username = db.Column(db.String(50), primary_key=True, unique=True, nullable=False)
+    password = db.Column(db.String(50), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+    def __repr__(self):
+        return '<User %r>' % self.username
+    # db stuff
+
+
 # class Order(db.Model):
 #     pass
 #     # order
 
 
-# api
-@app.route('/api/login', methods=['POST'])
-def login():
-    pass
+# # api
+# @app.route('/api/login', methods=['POST'])
+# def login():
+#     pass
 
 
 # Catch all

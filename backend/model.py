@@ -4,12 +4,12 @@ from .app import app
 db = SQLAlchemy(app)
 
 
-class User(db.Model):
-    pass
-    # db stuff
-
-
-class Order(db.Model):
-    pass
-    # order
+# class User(db.Model):
+#     pass
+#     # db stuff
+#
+#
+# class Order(db.Model):
+#     pass
+#     # order
 

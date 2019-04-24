@@ -26,7 +26,8 @@ db = SQLAlchemy(app)
 
 
 class User(db.Model):
-    username = db.Column(db.String(50), primary_key=True, unique=True, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
 
@@ -51,11 +52,11 @@ class User(db.Model):
 @app.route('/<path:path>')
 def catch_all(path):
 
-    file_path = './flaskbank/react-app/build'  # change here
+    file_path = './react-app/build'  # change here
 
     if path and Path(file_path+'/'+path).exists():
         print('sent: ', path)
-        return send_from_directory('/react/build', path)
+        return send_from_directory('./react-app/build', path)
     print(f'Caught /{path}')
     return render_template('index.html')
 

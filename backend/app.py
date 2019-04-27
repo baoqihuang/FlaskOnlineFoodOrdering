@@ -38,7 +38,6 @@ db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 f_jwt.init_app(app)
 
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first = db.Column(db.String(50), unique=False, nullable=False)
@@ -59,61 +58,10 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-
-# def to_d128(amount):
-#     """
-#     convert amount to decimal128
-#     :param amount:
-#     :return:
-#     """
-#     round_amount = (round(amount, 2))
-#     d128_ctx = create_decimal128_context()
-#     with am.decimal.localcontext(d128_ctx):
-#         final_amount = am.Decimal128(str(round_amount))
-#     return final_amount
-#
-#
-# def make_serializable(client_dict):
-#     """
-#     Convert all decimal128 to float, more generic version
-#     :param client_dict:
-#     :return:
-#     """
-#     for key in client_dict:
-#         if type(client_dict[key]) is am.Decimal128:
-#             client_dict[key] = float(client_dict[key].to_decimal())
-#         if type(client_dict[key]) is dict:
-#             make_serializable(client_dict[key])
-#         if type(client_dict[key]) is list:
-#             for item in client_dict[key]:
-#                 make_serializable(item)
-#
-#
-# def make_json_serializable(client_dict):
-#     """
-#     Convert types to json serializable
-#     :param client_dict:
-#     :return:
-#     """
-#     for account in client_dict['accounts']:
-#         balance = account['balance']
-#         try:
-#             account['balance'] = float(balance.to_decimal())
-#         except AttributeError:
-#             pass
-#         try:
-#             account['credit_limit'] = float(balance.to_decimal())
-#         except (AttributeError, KeyError):
-#             pass
-#         transactions = account.get('transactions', [])
-#         for transaction in transactions:
-#             amount = transaction['amount']
-#             try:
-#                 transaction['amount'] = float(amount.to_decimal())
-#             except AttributeError:
-#                 pass
-#     return client_dict
-
+    # @property
+    # def to_dict(self):
+    #     result = {"first": self.first, "last": self.last, "email": self.email, "username": self.username, "password": self.password}
+    #     return result
 
 # Catch all
 @app.route('/', defaults={'path': ''})
@@ -215,6 +163,11 @@ def register_user():
         return jsonify({'msg': 'User already existed'}), 400
 
 
+# def object_as_dict(obj):
+#     return {c.key: getattr(obj, c.key)
+#             for c in inspect(obj).mapper.column_attrs}
+
+
 @app.route('/userinfo', methods=['GET'])
 @jwt_required
 def get_all_detail():
@@ -222,13 +175,9 @@ def get_all_detail():
     client = User.query.filter_by(username=current_user).first()
     if not client:
         return jsonify({'msg': 'client not found'}), 409
-    response = jsonify(client)
-    # userinfo = {
-    #     'first': client.first,
-    #     'last': client.last,
-    #     'email': client.email,
-    #     'username': client.username,
-    #     'password': client.password}
+
+    response = jsonify(client.to_dict())
+
     return jsonify(response), 201
 
 

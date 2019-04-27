@@ -1,2 +1,2 @@
-# FalskOnlineFoodOrding
+# FlaskOnlineFoodOrdering
 Flask, Mysql, React

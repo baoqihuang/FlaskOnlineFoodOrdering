@@ -121,8 +121,6 @@ def reset_password():
     new_hash = bcrypt.generate_password_hash(newpw.encode('UTF-8'))
     client.password = new_hash
     db.session.commit()
-    # if not result.modified_count:
-    #     return jsonify({'msg': 'Failed to update'}), 503
 
     return jsonify({'msg': 'password changed successful'}), 200
 
@@ -174,14 +172,6 @@ def get_all_detail():
     client = User.query.filter_by(username=current_user).first()
     if not client:
         return jsonify({'msg': 'client not found'}), 409
-    # print(type(client.first))
-    # dictionary = {
-    #     "first": client.first,
-    #     "last": client.last,
-    #     "email": client.email,
-    #     "username": client.username,
-    # }
-    # print(type(dictionary))
 
     return jsonify(client.to_dict()), 200
 

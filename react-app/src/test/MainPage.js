@@ -112,18 +112,18 @@ class Login extends React.Component {
                                 </Button>
 
                                 <div id="formFooter" style={formFooter}>
-                                    <a className="underlineHover" href= "#" onClick={this.handleOpen}>Forgot Password?</a>
+                                    <a className="underlineHover" href= "/changepassword">Forgot Password?</a>
                                     <a className="underlineHover" href= "/register">New User?</a>
                                 </div>
                             </form>
-                            <Modal
-                                aria-labelledby="simple-modal-title"
-                                aria-describedby="simple-modal-description"
-                                open={this.state.open}
-                                onClose={this.handleClose}>
+                            {/*<Modal*/}
+                                {/*aria-labelledby="simple-modal-title"*/}
+                                {/*aria-describedby="simple-modal-description"*/}
+                                {/*open={this.state.open}*/}
+                                {/*onClose={this.handleClose}>*/}
 
-                                <ChangePassword/>
-                            </Modal>
+                                {/*<ChangePassword/>*/}
+                            {/*</Modal>*/}
                         </div>
                     </div>
                 </Paper>

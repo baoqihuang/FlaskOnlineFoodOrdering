@@ -58,10 +58,9 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-    # @property
-    # def to_dict(self):
-    #     result = {"first": self.first, "last": self.last, "email": self.email, "username": self.username, "password": self.password}
-    #     return result
+    def to_dict(self):
+        result = {"first": self.first, "last": self.last, "email": self.email, "username": self.username}
+        return result
 
 # Catch all
 @app.route('/', defaults={'path': ''})
@@ -175,10 +174,16 @@ def get_all_detail():
     client = User.query.filter_by(username=current_user).first()
     if not client:
         return jsonify({'msg': 'client not found'}), 409
+    # print(type(client.first))
+    # dictionary = {
+    #     "first": client.first,
+    #     "last": client.last,
+    #     "email": client.email,
+    #     "username": client.username,
+    # }
+    # print(type(dictionary))
 
-    response = jsonify(client.to_dict())
-
-    return jsonify(response), 201
+    return jsonify(client.to_dict()), 200
 
 
 if __name__ == '__main__':

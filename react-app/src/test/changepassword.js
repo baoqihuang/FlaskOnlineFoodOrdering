@@ -32,6 +32,9 @@ class ChangePasswordForm extends React.Component {
         password: "",
     };
 
+    componentDidMount() {
+
+    }
     onSubmit =(e) => {
         console.log("I just submit");
         e.preventDefault();
@@ -39,7 +42,7 @@ class ChangePasswordForm extends React.Component {
         console.log(this.props);
 
 
-        axios.post('/api/reset',
+        axios.post('/reset',
             {
                 username: this.state.username,
                 email: this.state.email,
@@ -100,7 +103,10 @@ class ChangePasswordForm extends React.Component {
                         type="submit"
                         className="btn btn-lg btn-primary btn-block"
                     >
-                        Submit
+                        <a href="/">
+                            Submit
+                        </a>
+
                     </button>
                 </form>
             </div>

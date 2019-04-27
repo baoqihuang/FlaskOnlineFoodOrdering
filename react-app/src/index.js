@@ -8,7 +8,7 @@ import reducers from "./reducers";
 import MainPage from "./test/MainPage";
 import OverViewPage from "./test/OverViewPage";
 import Register from "./test/Register";
-
+import Changepassword from "./test/changepassword"
 class App extends Component {
     render() {
         return (
@@ -16,7 +16,7 @@ class App extends Component {
                 <div>
                     <Route exact path="/" component={MainPage} />
                     <Route exact path="/register" component={Register} />
-                    {/*<Route exact path="/atm2" component={MapV2} />*/}
+                    <Route exact path="/changepassword" component={Changepassword} />
                     {/*<Route exact path="/openAcc" component={OpenAccountPage} />*/}
                     {/*<Route exact path="/closeAcc" component={CloseAccountPage} />*/}
 

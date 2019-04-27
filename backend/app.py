@@ -58,10 +58,9 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-    # @property
-    # def to_dict(self):
-    #     result = {"first": self.first, "last": self.last, "email": self.email, "username": self.username, "password": self.password}
-    #     return result
+    def to_dict(self):
+        result = {"first": self.first, "last": self.last, "email": self.email, "username": self.username}
+        return result
 
 # Catch all
 @app.route('/', defaults={'path': ''})
@@ -122,8 +121,6 @@ def reset_password():
     new_hash = bcrypt.generate_password_hash(newpw.encode('UTF-8'))
     client.password = new_hash
     db.session.commit()
-    # if not result.modified_count:
-    #     return jsonify({'msg': 'Failed to update'}), 503
 
     return jsonify({'msg': 'password changed successful'}), 200
 
@@ -176,9 +173,7 @@ def get_all_detail():
     if not client:
         return jsonify({'msg': 'client not found'}), 409
 
-    response = jsonify(client.to_dict())
-
-    return jsonify(response), 201
+    return jsonify(client.to_dict()), 200
 
 
 if __name__ == '__main__':

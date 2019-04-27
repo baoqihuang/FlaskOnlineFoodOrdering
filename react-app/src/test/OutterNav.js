@@ -24,7 +24,7 @@ const dynamicNavBar = (props) =>{
     const logout = () => {
         const req_headers = {Authorization: 'Bearer ' + props.myKey};
 
-        axios.delete("/logout ",{headers: req_headers})
+        axios.delete("http://127.0.0.1:5000/logout ",{headers: req_headers})
             .then(response => {
                 if(response.status === 200) {
                     console.log(response.data.msg);

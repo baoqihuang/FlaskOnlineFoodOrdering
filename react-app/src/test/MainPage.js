@@ -4,11 +4,9 @@ import Modal from '@material-ui/core/Modal';
 import axios from "axios";
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button'
-import ChangePassword from "../test/ChangePassword";
 import {connect} from "react-redux";
 import {loginAction,logInRequest} from "../actions/loginAction";
 import jwt_decode from "jwt-decode";
-import {Link}from "react-router-dom";
 import {BrowserRouter as Router, Redirect,Route} from "react-router-dom";
 // import PopUpWindow from "../FrameWorkUnity/DynamicPopUpWindow/PopUpWindow";
 import {changeUserType} from '../actions/changeUserTypeAction';
@@ -58,7 +56,7 @@ class Login extends React.Component {
 
         console.log('it just submit');
 
-        axios.post('/login', {
+        axios.post('http://127.0.0.1:5000/login', {
             username: this.state.username,
             password: this.state.password
         }).then(response => {
@@ -114,6 +112,7 @@ class Login extends React.Component {
                                 <div id="formFooter" style={formFooter}>
                                     <a className="underlineHover" href= "/changepassword">Forgot Password?</a>
                                     <a className="underlineHover" href= "/register">New User?</a>
+                                    <p>test    </p>
                                 </div>
                             </form>
                             {/*<Modal*/}

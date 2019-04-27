@@ -37,7 +37,7 @@ class OverViewPage extends React.Component{
         console.log("OverVIew Component Did Mount")
         const req_headers = {Authorization: 'Bearer ' + this.props.myKey}
 
-        axios.get("/userinfo",{headers: req_headers})
+        axios.get("http://127.0.0.1:5000/userinfo",{headers: req_headers})
             .then(response => {
                 console.log(response);
                 this.props.getProfile(response.data);

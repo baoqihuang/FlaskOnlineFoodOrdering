@@ -1,15 +1,11 @@
 import os
 from flask import Flask, jsonify, render_template, request, send_from_directory, redirect
 from flask_jwt_extended import create_access_token, JWTManager, get_jwt_identity, get_raw_jwt, jwt_required
-# from bson.decimal128 import create_decimal128_context, Decimal128
-import decimal as decimal
 from flask_bcrypt import Bcrypt
 from pathlib import Path
 from flask_cors import CORS
 
 from flask_sqlalchemy import SQLAlchemy
-# from flask_jwt_extended import (jwt_required, create_access_token,
-#     get_jwt_identity, get_raw_jwt)
 f_jwt = JWTManager()
 
 
@@ -37,6 +33,7 @@ CORS(app)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 f_jwt.init_app(app)
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -149,7 +146,7 @@ def register_user():
     except KeyError:
         return jsonify({'msg': 'Bad Request, missing/misspelled key'}), 400
 
-    user = User.query.filter_by(username=username, email=email, user_type=user_type).first()
+    user = User.query.filter_by(username=username, email=email).first()
     if user is None:
         pw_hash = bcrypt.generate_password_hash(password.encode('UTF-8'))
         newuser = User(first, last, email, username, pw_hash, user_type)
@@ -158,11 +155,6 @@ def register_user():
         return redirect("/")
     else:
         return jsonify({'msg': 'User already existed'}), 400
-
-
-# def object_as_dict(obj):
-#     return {c.key: getattr(obj, c.key)
-#             for c in inspect(obj).mapper.column_attrs}
 
 
 @app.route('/userinfo', methods=['GET'])

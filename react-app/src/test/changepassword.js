@@ -42,7 +42,7 @@ class ChangePasswordForm extends React.Component {
         console.log(this.props);
 
 
-        axios.post('/reset',
+        axios.post('http://127.0.0.1:5000/reset',
             {
                 username: this.state.username,
                 email: this.state.email,

@@ -254,7 +254,7 @@ def register_user():
 
 @app.route('/userinfo', methods=['GET'])
 @jwt_required
-def get_all_detail():
+def get_all_userinfo():
     current_user = get_jwt_identity()['username']
     client = User.query.filter_by(username=current_user).first()
     if not client:
@@ -568,6 +568,17 @@ def shoppingcart_placeorder():
     client = User.query.filter_by(username=current_user).first()
     if not client:
         return jsonify({'msg': 'Invalid client or client not found'}), 409
+
+    data = request.get_json()
+    if not data:
+        return jsonify({'msg': 'Bad Request, no data passed'}), 400
+
+    try:
+        phonenumber = data["phone_number"]
+    except KeyError:
+        return jsonify({'msg': 'Bad Request, missing/misspelled key'}), 400
+    client.phonenumber = phonenumber
+    db.session.commit()
 
     itemsid = Shoppingcart.query.filter_by(user_id=client.id).all()
     if not itemsid:

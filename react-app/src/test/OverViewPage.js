@@ -108,5 +108,5 @@ const mapStateToProps = (state) => {
 
 
 
-export default connect(mapStateToProps,{getProfile, accountDetailAction}) (withStyles(styles)(OverViewPage));
+export default connect(mapStateToProps,{getProfile, accountDetailAction});
 

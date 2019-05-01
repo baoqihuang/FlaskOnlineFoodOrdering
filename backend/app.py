@@ -168,6 +168,20 @@ def catch_all(path):
     return render_template('index.html')
 
 
+def detectorderstatus():
+    orders = Order.query.all()
+    for order in orders:
+        timefornow = datetime.now()
+        minusfourtime = timefornow - timedelta(minutes=4)
+        if order.time < minusfourtime:
+            order.ifcancelable = False
+            db.session.commit()
+        minusfivetime = timefornow - timedelta(minutes=5)
+        if order.time < minusfivetime and order.status != "completed":
+            order.status = "prepared"
+            db.session.commit()
+
+
 @app.route('/login', methods=['POST'])
 def login_user():
     data = request.get_json()
@@ -237,8 +251,8 @@ def register_user():
         email = data["email"].lower()
         username = data["username"].lower()
         password = data['password']
-        user_type = data.get('user_type', 'manager')
-        phonenumber = data.get('phonenumber', '8888888888')
+        user_type = data.get('user_type', 'client')
+        phonenumber = data.get('phonenumber', '')
     except KeyError:
         return jsonify({'msg': 'Bad Request, missing/misspelled key'}), 400
 
@@ -287,7 +301,7 @@ def display_all():
 
     result = []
     for item in items:
-        result.append({"id": item.id, "name": item.name, "price": item.price, "picture": item.picurl})
+        result.append({"id": item.id, "name": item.name, "price": item.price, "picture": item.picurl, "category": item.category})
     return jsonify(result), 200
 
 # display the specific item'id,name,price,picture before login
@@ -342,6 +356,7 @@ def get_all_orderhistory():
     client = User.query.filter_by(username=current_user).first()
     if not client:
         return jsonify({'msg': 'client not found'}), 409
+    detectorderstatus()
     orders = Order.query.filter_by(user_id=client.id).all()
     if not orders:
         return jsonify({'msg': "This client's order does not found"}), 409
@@ -368,12 +383,9 @@ def display_order_detail():
         order_id = data["order_id"]
     except KeyError:
         return jsonify({'msg': 'Bad Request, missing/misspelled key'}), 400
+    detectorderstatus()
     order = Order.query.filter_by(id=order_id).first()
-    timefornow = datetime.now()
-    minustentime = timefornow - timedelta(minutes=10)
-    if order.time < minustentime:
-        order.ifcancelable = False
-        db.session.commit()
+
     itemsid = Itemsinorder.query.filter_by(order_id=order_id).all()
     if not itemsid:
         return jsonify({'msg': "This order does not have items"}), 409
@@ -404,20 +416,13 @@ def order_cancel():
     except KeyError:
         return jsonify({'msg': 'Bad Request, missing/misspelled key'}), 400
 
+    detectorderstatus()
     order = Order.query.filter_by(id=order_id).first()
-    if not order:
-        return jsonify({'msg': "This order does not exist"}), 409
+    if not order or order.ifcancelable:
+        return jsonify({'msg': "This order does not exist or can not be cancelled"}), 409
     else:
-        timefornow = datetime.now()
-        minustentime = timefornow - timedelta(minutes=10)
-        if order.time < minustentime:
-            order.ifcancelable = False
-            db.session.commit()
-            return jsonify({'msg': "This order can not be cancelled at this time"}), 409
-        else:
-
-            db.session.delete(order)
-            db.session.commit()
+        db.session.delete(order)
+        db.session.commit()
         itemsid = Itemsinorder.query.filter_by(order_id=order_id).all()
         for itemid in itemsid:
             db.session.delete(itemid)
@@ -433,8 +438,11 @@ def manager_display():
     client = User.query.filter_by(username=current_user).first()
     if not client or client.user_type != 'manager':
         return jsonify({'msg': 'Invalid client or client not found'}), 409
+
     pickuporders = []
-    orders = Order.query.filter_by(ifpickup=False).all()
+    detectorderstatus()
+
+    orders = Order.query.filter_by(ifpickup=False, status="prepared").all()
     if not orders:
         return jsonify({'msg': "This is no order need to be pick up"}), 409
     else:
@@ -444,7 +452,7 @@ def manager_display():
             for itemid in itemsid:
                 item = Item.query.filter_by(id=itemid.item_id).first()
                 detail += item.name + " * " + str(itemid.quantity) + " "
-            pickuporders.append({"order_id": order.id, "detail": detail, "order_time": order.time})
+            pickuporders.append({"order_id": order.id, "detail": detail, "order_time": order.time, "status": order.status})
     return jsonify(pickuporders), 200
 
 
@@ -453,7 +461,7 @@ def manager_display():
 def manager_pickup():
     current_user = get_jwt_identity()['username']
     client = User.query.filter_by(username=current_user).first()
-    if not client:
+    if not client or client.user_type != 'manager':
         return jsonify({'msg': 'Invalid client or client not found'}), 409
 
     data = request.get_json()
@@ -464,14 +472,15 @@ def manager_pickup():
         order_id = data["order_id"]
     except KeyError:
         return jsonify({'msg': 'Bad Request, missing/misspelled key'}), 400
+    detectorderstatus()
 
-    order = Order.query.filter_by(id=order_id).first()
+    order = Order.query.filter_by(id=order_id, ifpickup=False, status="prepared").first()
     if not order:
-        return jsonify({'msg': "This is no order need to be pick up"}), 409
+        return jsonify({'msg': "This order can not be picked up"}), 409
     else:
         order.ifcancelable = False
         order.ifpickup = True
-        order.status = "complete"
+        order.status = "completed"
         db.session.commit()
     return jsonify({'msg': "Order pick up successfully"}), 200
 
@@ -490,7 +499,7 @@ def user_shoppingcart():
     itemsinfo = []
     for itemid in itemsid:
         item = Item.query.filter_by(id=itemid.item_id).first()
-        itemsinfo.append({"picurl": item.picurl, "name": item.name, "description": item.description, "price": item.price})
+        itemsinfo.append({"item_id": item.id, "picurl": item.picurl, "name": item.name, "description": item.description, "price": item.price})
     return jsonify(itemsinfo), 200
 
 
@@ -612,6 +621,41 @@ def shoppingcart_placeorder():
         db.session.delete(itemid)
         db.session.commit()
     return jsonify({'msg': 'Order checkout successfully'}), 200
+
+
+@app.route('/auth/deleteorder', methods=['POST'])
+@jwt_required
+def delete_order():
+    current_user = get_jwt_identity()['username']
+    client = User.query.filter_by(username=current_user).first()
+    if not client:
+        return jsonify({'msg': 'client not found'}), 409
+
+    data = request.get_json()
+    if not data:
+        return jsonify({'msg': 'Bad Request, no data passed'}), 400
+
+    try:
+        order_id = data["order_id"]
+    except KeyError:
+        return jsonify({'msg': 'Bad Request, missing/misspelled key'}), 400
+    detectorderstatus()
+    order = Order.query.filter_by(id=order_id).first()
+
+    if not order:
+        return jsonify({'msg': "This order does not existed"}), 409
+    else:
+        db.session.delete(order)
+        db.session.commit()
+
+    itemsid = Itemsinorder.query.filter_by(order_id=order_id).all()
+    if not itemsid:
+        return jsonify({'msg': "This order does not have items"}), 409
+    else:
+        for itemid in itemsid:
+            db.session.delete(itemid)
+            db.session.commit()
+    return jsonify({"msg": "Successfully deleted order"}), 200
 
 
 if __name__ == '__main__':

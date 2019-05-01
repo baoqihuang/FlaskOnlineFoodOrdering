@@ -36,8 +36,9 @@ f_jwt.init_app(app)
 
 
 class Itemsinorder(db.Model):
-    order_id = db.Column(db.Integer, primary_key=True)
-    item_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer)
+    item_id = db.Column(db.Integer)
     quantity = db.Column(db.Integer, nullable=False)
 
     def __init__(self, order_id=None, item_id=None, quantity=None):
@@ -78,7 +79,7 @@ class User(db.Model):
     last = db.Column(db.String(50), unique=False, nullable=False)
     email = db.Column(db.String(50), unique=True, nullable=False)
     username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(50), unique=False, nullable=False)
     user_type = db.Column(db.String(50), unique=False, nullable=False)
     phonenumber = db.Column(db.String(15), unique=False, nullable=True)
     orders = db.relationship('Order', backref='user', lazy=True)
@@ -106,7 +107,7 @@ class Order(db.Model):
     time = db.Column(db.DateTime, unique=False, nullable=False)
     ifcancelable = db.Column(db.Boolean, nullable=False)
     ifpickup = db.Column(db.Boolean, nullable=False)
-    status = db.Column(db.String(20), unique=True, nullable=False)
+    status = db.Column(db.String(20), unique=False, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __init__(self, total=None, time=None, ifcancelable=None, ifpickup=None, status=None, user_id=None):
@@ -403,18 +404,26 @@ def order_cancel():
     except KeyError:
         return jsonify({'msg': 'Bad Request, missing/misspelled key'}), 400
 
-    order = Order.query.filter_by(order_id=order_id).first()
+    order = Order.query.filter_by(id=order_id).first()
     if not order:
         return jsonify({'msg': "This order does not exist"}), 409
     else:
-        db.session.delete(order)
-        db.session.commit()
-        itemsid = Itemsinorder.query.filter_by(order_id=order_id).first()
+        timefornow = datetime.now()
+        minustentime = timefornow - timedelta(minutes=10)
+        if order.time < minustentime:
+            order.ifcancelable = False
+            db.session.commit()
+            return jsonify({'msg': "This order can not be cancelled at this time"}), 409
+        else:
+
+            db.session.delete(order)
+            db.session.commit()
+        itemsid = Itemsinorder.query.filter_by(order_id=order_id).all()
         for itemid in itemsid:
             db.session.delete(itemid)
             db.session.commit()
 
-    return jsonify({'msg': "This order is cancelled"}), 200
+    return jsonify({'msg': "This order was cancelled successfully"}), 200
 
 
 @app.route('/auth/manager', methods=['GET'])
@@ -425,7 +434,7 @@ def manager_display():
     if not client or client.user_type != 'manager':
         return jsonify({'msg': 'Invalid client or client not found'}), 409
     pickuporders = []
-    orders = Order.query.filter_by(ifplaceedorder=True, ifpickup=False).first()
+    orders = Order.query.filter_by(ifpickup=False).all()
     if not orders:
         return jsonify({'msg': "This is no order need to be pick up"}), 409
     else:
@@ -435,7 +444,7 @@ def manager_display():
             for itemid in itemsid:
                 item = Item.query.filter_by(id=itemid.item_id).first()
                 detail += item.name + " * " + str(itemid.quantity) + " "
-            pickuporders.append({"order_id": order.id, "detail":detail, "order_time": order.time})
+            pickuporders.append({"order_id": order.id, "detail": detail, "order_time": order.time})
     return jsonify(pickuporders), 200
 
 
@@ -461,7 +470,9 @@ def manager_pickup():
         return jsonify({'msg': "This is no order need to be pick up"}), 409
     else:
         order.ifcancelable = False
-        order.status = "pickup"
+        order.ifpickup = True
+        order.status = "complete"
+        db.session.commit()
     return jsonify({'msg': "Order pick up successfully"}), 200
 
 
@@ -561,7 +572,7 @@ def shoppingcart_deleteitem():
     return jsonify({'msg': 'Item was deleted from the shoopingcart successfully'}), 200
 
 
-@app.route('/auth/shoppingcart/placeorder', methods=['GET'])
+@app.route('/auth/shoppingcart/placeorder', methods=['POST'])
 @jwt_required
 def shoppingcart_placeorder():
     current_user = get_jwt_identity()['username']

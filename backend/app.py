@@ -1,11 +1,11 @@
 import os
-from flask import Flask, jsonify, render_template, request, send_from_directory, redirect
+from flask import Flask, jsonify, render_template, request, send_from_directory
 from flask_jwt_extended import create_access_token, JWTManager, get_jwt_identity, get_raw_jwt, jwt_required
 from flask_bcrypt import Bcrypt
 from pathlib import Path
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 f_jwt = JWTManager()
 
 
@@ -362,7 +362,7 @@ def get_all_orderhistory():
         return jsonify({'msg': "This client's order does not found"}), 409
     userorders = []
     for order in orders:
-        userorders.insert(0, {'id': order.id, 'status': order.status, 'time': order.time, 'total': order.total})
+        userorders.insert(0, {'id': order.id, 'status': order.status, 'time': order.time, 'total': order.total, "ifcancelable": order.ifcancelable})
     return jsonify(userorders), 200
 
 
@@ -416,8 +416,8 @@ def order_cancel():
         return jsonify({'msg': 'Bad Request, missing/misspelled key'}), 400
 
     detectorderstatus()
-    order = Order.query.filter_by(id=order_id).first()
-    if not order or order.ifcancelable:
+    order = Order.query.filter_by(id=order_id, ifcancelable=True).first()
+    if not order or not order.ifcancelable:
         return jsonify({'msg': "This order does not exist or can not be cancelled"}), 409
     else:
         db.session.delete(order)
@@ -495,11 +495,13 @@ def user_shoppingcart():
     itemsid = Shoppingcart.query.filter_by(user_id=client.id).all()
     if not itemsid:
         return jsonify({'msg': "Nothing in the shopping cart"}), 409
+    total = 0
     itemsinfo = []
     for itemid in itemsid:
         item = Item.query.filter_by(id=itemid.item_id).first()
-        itemsinfo.append({"item_id": item.id, "picurl": item.picurl, "name": item.name, "description": item.description, "price": item.price})
-    return jsonify(itemsinfo), 200
+        total += itemid.quantity * item.price
+        itemsinfo.append({"item_id": item.id, "picurl": item.picurl, "name": item.name, "description": item.description, "price": item.price, "cal": item.cal, "quantity": itemid.quantity})
+    return jsonify({"total": total, "itemsinfo": itemsinfo}), 200
 
 
 @app.route('/auth/shoppingcarttotal', methods=['GET'])

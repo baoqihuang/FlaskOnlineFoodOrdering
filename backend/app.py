@@ -330,10 +330,10 @@ def set_up_items():
     data = request.get_json()
     if not data:
         return jsonify({'msg': 'Bad Request, no data passed'}), 400
-    name = data["name"].lower()
+    name = data["name"]
     price = data["price"]
-    description = data["description"].lower()
-    ingredient = data["ingredient"].lower()
+    description = data["description"]
+    ingredient = data["ingredient"]
     cal = data['cal']
     rating = data["rating"]
     picurl = data["picurl"].lower()

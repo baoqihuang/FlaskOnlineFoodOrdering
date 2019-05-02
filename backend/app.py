@@ -362,8 +362,7 @@ def get_all_orderhistory():
         return jsonify({'msg': "This client's order does not found"}), 409
     userorders = []
     for order in orders:
-        userorders.append({'id': order.id, 'status': order.status, 'time': order.time, 'total': order.total})
-
+        userorders.insert(0, {'id': order.id, 'status': order.status, 'time': order.time, 'total': order.total})
     return jsonify(userorders), 200
 
 

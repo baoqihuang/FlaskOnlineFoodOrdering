@@ -61,8 +61,8 @@ class Login extends React.Component {
             password: this.state.password
         }).then(response => {
             if (response.status === 201) {
-                console.log(jwt_decode(response.data.access_token).identity.user_type);
-                console.log(response);
+                // console.log(jwt_decode(response.data.access_token).identity.user_type);
+                // console.log(response);
 
                 this.props.props.changeUserType(jwt_decode(response.data.access_token).identity.user_type)
                 this.props.props.logInRequest(response)

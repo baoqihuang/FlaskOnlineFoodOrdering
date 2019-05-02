@@ -18,7 +18,7 @@ export const authenticationUserTypeReducer = ( state=" ", action) => {
 export const authenticationRequestReducer = (state = '', action) => {
     switch(action.type){
         case ACTION.LOG_IN :{
-            console.log(action.payload.status);
+            // console.log(action.payload.status);
             return action.payload.status === 201 ? action.payload.data.access_token : " ";}
         case ACTION.LOG_OUT :
             return " ";

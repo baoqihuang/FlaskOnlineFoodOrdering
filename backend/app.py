@@ -35,6 +35,29 @@ bcrypt = Bcrypt(app)
 f_jwt.init_app(app)
 
 
+class Review(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    order_id = db.Column(db.Integer)
+    item_id = db.Column(db.Integer)
+    comment = db.Column(db.String(1000), nullable=False)
+    reviewable = db.Column(db.Boolean)
+
+    def __init__(self, user_id=None, order_id=None, item_id=None, comment=None, reviewable=None):
+        self.user_id = user_id
+        self.order_id = order_id
+        self.item_id = item_id
+        self.comment = comment
+        self.reviewable = reviewable
+
+    def __repr__(self):
+        return '<Order %r>' % self.id
+
+    def to_dict(self):
+        result = {"user_id": self.user_id, "order_id": self.order_id, "item_id": self.item_id, "comment": self.comment, "reviewable": self.reviewable}
+        return result
+
+
 class Itemsinorder(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer)
@@ -204,7 +227,7 @@ def login_user():
         return jsonify({'msg': 'Invalid username/password'}), 409
 
     token = create_access_token(identity={'username': username})
-    return jsonify({'access_token': token}), 201
+    return jsonify({"access_token": token, "user_type": client.user_type}), 201
 
 
 @app.route('/reset', methods=['POST'])
@@ -316,12 +339,16 @@ def display_detail():
         item_id = data["item_id"]
     except KeyError:
         return jsonify({'msg': 'Bad Request, missing/misspelled key'}), 400
-
+    reviews = []
+    reviewsresult = Review.query.filter_by(item_id=item_id).all()
+    for review in reviewsresult:
+        review.append({"review": review.comment})
     item = Item.query.filter_by(id=item_id).first()
     if item is None:
         return jsonify({'msg': 'Item is not existed'}), 400
     else:
-        return jsonify(item.to_dict()), 200
+
+        return jsonify({"item_detail": item.to_dict(), "review": reviews}), 200
 
 
 @app.route('/setupitems', methods=['POST'])
@@ -392,8 +419,13 @@ def display_order_detail():
     orderitems = []
     for itemid in itemsid:
         item = Item.query.filter_by(id=itemid.item_id).first()
-        orderitems.append({'name': item.name, 'price': item.price, 'quantity': itemid.quantity,
-                           'picurl': item.picurl})
+        review = Review.query.filter_by(user_id=client.id, order_id=order_id, item_id=itemid.item_id).first()
+        if not review:
+            orderitems.append({"item_id": item.id, 'name': item.name, 'price': item.price, 'quantity': itemid.quantity,
+                               'picurl': item.picurl, "reviewable": True})
+        else:
+            orderitems.append({"item_id": item.id, "name": item.name, "price": item.price, "quantity": itemid.quantity,
+                           "picurl": item.picurl, "reviewable": review.reviewable})
 
     return jsonify({"order_status": order.status, "ifcancellable": order.ifcancelable, "orderdetail": orderitems}), 200
 
@@ -495,13 +527,11 @@ def user_shoppingcart():
     itemsid = Shoppingcart.query.filter_by(user_id=client.id).all()
     if not itemsid:
         return jsonify({'msg': "Nothing in the shopping cart"}), 409
-    total = 0
     itemsinfo = []
     for itemid in itemsid:
         item = Item.query.filter_by(id=itemid.item_id).first()
-        total += itemid.quantity * item.price
         itemsinfo.append({"item_id": item.id, "picurl": item.picurl, "name": item.name, "description": item.description, "price": item.price, "cal": item.cal, "quantity": itemid.quantity})
-    return jsonify({"total": total, "itemsinfo": itemsinfo}), 200
+    return jsonify({itemsinfo}), 200
 
 
 @app.route('/auth/shoppingcarttotal', methods=['GET'])
@@ -617,6 +647,9 @@ def shoppingcart_placeorder():
         iteminorder = Itemsinorder(neworder.id, itemid.item_id, itemid.quantity)
         db.session.add(iteminorder)
         db.session.commit()
+        review = Review(client.id, neworder.id, itemid.item_id, "", True)
+        db.session.add(review)
+        db.session.commit()
 
     for itemid in itemsid:
         db.session.delete(itemid)
@@ -657,6 +690,36 @@ def delete_order():
             db.session.delete(itemid)
             db.session.commit()
     return jsonify({"msg": "Successfully deleted order"}), 200
+
+
+@app.route('/auth/getreviewinfo', methods=['POST'])
+@jwt_required
+def get_reviewinfo():
+    current_user = get_jwt_identity()['username']
+    client = User.query.filter_by(username=current_user).first()
+    if not client:
+        return jsonify({'msg': 'client not found'}), 409
+
+    data = request.get_json()
+    if not data:
+        return jsonify({'msg': 'Bad Request, no data passed'}), 400
+
+    try:
+        order_id = data["order_id"]
+        item_id = data["item_id"]
+        comment = data["comment"]
+    except KeyError:
+        return jsonify({'msg': 'Bad Request, missing/misspelled key'}), 400
+    review = Review.query.filter_by(user_id=client.id, order_id=order_id, item_id=item_id).first()
+
+    if not review:
+        return jsonify({'msg': "You don't have the item in this order"}), 400
+    else:
+        review.comment = comment
+        review.reviewable = False
+        db.session.commit()
+
+    return jsonify({'msg': "Review summitted"}), 200
 
 
 if __name__ == '__main__':

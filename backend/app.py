@@ -531,7 +531,8 @@ def user_shoppingcart():
     for itemid in itemsid:
         item = Item.query.filter_by(id=itemid.item_id).first()
         itemsinfo.append({"item_id": item.id, "picurl": item.picurl, "name": item.name, "description": item.description, "price": item.price, "cal": item.cal, "quantity": itemid.quantity})
-    return jsonify({itemsinfo}), 200
+
+    return jsonify(itemsinfo), 201
 
 
 @app.route('/auth/shoppingcarttotal', methods=['GET'])

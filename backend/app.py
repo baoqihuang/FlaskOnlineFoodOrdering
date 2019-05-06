@@ -42,19 +42,21 @@ class Review(db.Model):
     item_id = db.Column(db.Integer)
     comment = db.Column(db.String(1000), nullable=False)
     reviewable = db.Column(db.Boolean)
+    reviewtime = db.Column(db.DateTime)
 
-    def __init__(self, user_id=None, order_id=None, item_id=None, comment=None, reviewable=None):
+    def __init__(self, user_id=None, order_id=None, item_id=None, comment=None, reviewable=None, reviewtime=None):
         self.user_id = user_id
         self.order_id = order_id
         self.item_id = item_id
         self.comment = comment
         self.reviewable = reviewable
+        self.reviewtime = reviewtime
 
     def __repr__(self):
         return '<Order %r>' % self.id
 
     def to_dict(self):
-        result = {"user_id": self.user_id, "order_id": self.order_id, "item_id": self.item_id, "comment": self.comment, "reviewable": self.reviewable}
+        result = {"user_id": self.user_id, "order_id": self.order_id, "item_id": self.item_id, "comment": self.comment, "reviewable": self.reviewable, "reviewtime": self.reviewtime}
         return result
 
 
@@ -342,7 +344,7 @@ def display_detail():
     reviews = []
     reviewsresult = Review.query.filter_by(item_id=item_id).all()
     for review in reviewsresult:
-        review.append({"review": review.comment})
+        reviews.append({"user_id": review.user_id, "reviewtime": review.reviewtime,  "comment": review.comment})
     item = Item.query.filter_by(id=item_id).first()
     if item is None:
         return jsonify({'msg': 'Item is not existed'}), 400
@@ -351,9 +353,14 @@ def display_detail():
         return jsonify({"item_detail": item.to_dict(), "review": reviews}), 200
 
 
-@app.route('/setupitems', methods=['POST'])
-# @jwt_required
+@app.route('/manager/setupitems', methods=['POST'])
+@jwt_required
 def set_up_items():
+    current_user = get_jwt_identity()['username']
+    client = User.query.filter_by(username=current_user).first()
+    if not client or client.user_type != "manager":
+        return jsonify({'msg': 'client not found or the current user is not manager'}), 409
+
     data = request.get_json()
     if not data:
         return jsonify({'msg': 'Bad Request, no data passed'}), 400
@@ -458,7 +465,11 @@ def order_cancel():
         for itemid in itemsid:
             db.session.delete(itemid)
             db.session.commit()
-
+    reviewsinorder = Review.query.filter_by(user_id=client.id, order_id=order_id).all()
+    if reviewsinorder:
+        for reviewitem in reviewsinorder:
+            db.session.delete(reviewitem)
+        db.session.commit()
     return jsonify({'msg': "This order was cancelled successfully"}), 200
 
 
@@ -648,7 +659,7 @@ def shoppingcart_placeorder():
         iteminorder = Itemsinorder(neworder.id, itemid.item_id, itemid.quantity)
         db.session.add(iteminorder)
         db.session.commit()
-        review = Review(client.id, neworder.id, itemid.item_id, "", True)
+        review = Review(client.id, neworder.id, itemid.item_id, "", True, ordertime)
         db.session.add(review)
         db.session.commit()
 
@@ -690,6 +701,12 @@ def delete_order():
         for itemid in itemsid:
             db.session.delete(itemid)
             db.session.commit()
+
+    reviewsinorder = Review.query.filter_by(user_id=client.id, order_id=order_id).all()
+    if reviewsinorder:
+        for reviewitem in reviewsinorder:
+            db.session.delete(reviewitem)
+        db.session.commit()
     return jsonify({"msg": "Successfully deleted order"}), 200
 
 
@@ -711,13 +728,23 @@ def get_reviewinfo():
         comment = data["comment"]
     except KeyError:
         return jsonify({'msg': 'Bad Request, missing/misspelled key'}), 400
+
+    order = Order.query.filter_by(id=order_id).first()
+    if not order:
+        return jsonify({'msg': 'The order is not found'}), 400
+    else:
+        if order.status != "completed":
+            return jsonify({'msg': 'The order is not completed, you can not review'}), 400
+
     review = Review.query.filter_by(user_id=client.id, order_id=order_id, item_id=item_id).first()
 
+    reviewtime = datetime.now()
     if not review:
         return jsonify({'msg': "You don't have the item in this order"}), 400
     else:
         review.comment = comment
         review.reviewable = False
+        review.reviewtime = reviewtime
         db.session.commit()
 
     return jsonify({'msg': "Review summitted"}), 200

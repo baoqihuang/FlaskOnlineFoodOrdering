@@ -345,7 +345,7 @@ def display_detail():
     reviewsresult = Review.query.filter_by(item_id=item_id).all()
     for review in reviewsresult:
         user = User.query.filter_by(id=review.user_id).first()
-        reviews.append({"user_id": user.username, "reviewtime": review.reviewtime,  "comment": review.comment})
+        reviews.append({"username": user.username, "reviewtime": review.reviewtime,  "comment": review.comment})
     item = Item.query.filter_by(id=item_id).first()
     if item is None:
         return jsonify({'msg': 'Item is not existed'}), 400
@@ -525,6 +525,9 @@ def manager_pickup():
         order.ifpickup = True
         order.status = "completed"
         db.session.commit()
+        reviews = Review.query.filter_by(user_id=client.id, order_id=order_id).all()
+        for review in reviews:
+            review.reviewable = True
     return jsonify({'msg': "Order pick up successfully"}), 200
 
 
@@ -660,7 +663,7 @@ def shoppingcart_placeorder():
         iteminorder = Itemsinorder(neworder.id, itemid.item_id, itemid.quantity)
         db.session.add(iteminorder)
         db.session.commit()
-        review = Review(client.id, neworder.id, itemid.item_id, "", True, ordertime)
+        review = Review(client.id, neworder.id, itemid.item_id, "", False, ordertime)
         db.session.add(review)
         db.session.commit()
 

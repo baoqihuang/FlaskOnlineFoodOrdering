@@ -344,7 +344,8 @@ def display_detail():
     reviews = []
     reviewsresult = Review.query.filter_by(item_id=item_id).all()
     for review in reviewsresult:
-        reviews.append({"user_id": review.user_id, "reviewtime": review.reviewtime,  "comment": review.comment})
+        user = User.query.filter_by(id=review.user_id).first()
+        reviews.append({"user_id": user.username, "reviewtime": review.reviewtime,  "comment": review.comment})
     item = Item.query.filter_by(id=item_id).first()
     if item is None:
         return jsonify({'msg': 'Item is not existed'}), 400

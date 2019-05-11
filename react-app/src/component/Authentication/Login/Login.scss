@@ -1,0 +1,168 @@
+@import url("//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/css/bootstrap-glyphicons.css");
+
+body{
+  margin: 0;
+  padding: 0;
+ // background: url("http://colfaxave.com/wp-content/uploads/2017/03/office-depot-logo.png");
+  background-size: cover;
+
+  font-family: sans-serif;
+}
+
+
+.loginbox{
+  width: 300px;
+  height: 300px;
+  background: #e9ecef;
+  top: 50%;
+  left: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  padding: 40px 30px;
+}
+
+.inner-icon {
+  position: relative;
+}
+
+/* for icon style*/
+.inner-icon .glyphicon {
+  position: absolute;
+  padding: 10px;
+  pointer-events: none;
+}
+
+/*align icon*/
+.left-addon .glyphicon{left: 0px;}
+
+/*align text*/
+.left-addon input{padding-left: 35px;}
+
+h1{
+  margin: 0;
+  padding: 0 0 20px;
+  text-align: center;
+  font-size: 25px;
+}
+
+.loginbox p{
+  margin: 0;
+  padding: 0;
+  font-weight: bold;
+}
+
+.loginbox input{
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.loginbox input
+{
+  border: none;
+  border-bottom: 1px solid #fff;
+  background: transparent;
+  outline: none;
+  height: 35px;
+  color: #000000;
+  font-size: 14px;
+
+}
+
+.loginbox input[type="submit"]
+{
+  border: none;
+  outline: none;
+  height: 40px;
+  background: #4CAF50;
+  color: #fff;
+  font-size: 16px;
+}
+
+.loginbox input[type="submit"]:hover
+{
+  cursor: pointer;
+  opacity: 0.7;
+  /*background: #8b0000;*/
+  color: #000;
+}
+
+.loginbox a{
+  text-decoration: none;
+  font-size: 12px;
+  line-height: 10px;
+  color: darkgrey;
+}
+
+
+.container {
+  padding: 16px;
+}
+
+.signupbox{
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: transparent;
+  padding-top: 50px;
+}
+
+.signupbox-content{
+  background-color: #fefefe;
+  margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+  border: 1px solid #fff;
+  width: 80%; /* Could be more or less, depending on screen size */
+  height: 80%;
+}
+
+hr{
+  border: 2px solid #f1f1f1;
+  margin-bottom:35px;
+}
+
+
+.close {
+  position: absolute;
+  right: 50px;
+  top: 35px;
+  font-size:35px;
+  color: #f1f1f1;
+}
+
+.close:hover,
+.close:focus {
+  color: red;
+  cursor: pointer;
+}
+
+input.signupbox, input.signupbox
+{
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  display: inline-block;
+  border: none;
+  background: #f1f1f1;
+
+}
+
+/* Add Zoom Animation */
+.animate {
+  -webkit-animation: animatezoom 0.6s;
+  animation: animatezoom 0.6s
+}
+
+@-webkit-keyframes animatezoom {
+  from {-webkit-transform: scale(0)}
+  to {-webkit-transform: scale(1)}
+}
+
+@keyframes animatezoom {
+  from {transform: scale(0)}
+  to {transform: scale(1)}
+}

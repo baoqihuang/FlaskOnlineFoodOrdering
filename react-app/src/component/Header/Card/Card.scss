@@ -1,0 +1,50 @@
+.cardContent {
+  width: 350px;
+  height: 260px;
+  //margin: 20px;
+  display: inline-block;
+  position: relative;
+  margin: 48px 22px 40px 65px;
+}
+.cardContent:hover{
+  font-weight: bold;
+}
+.picsize{
+  top: 0;
+  width: 350px;
+  height: 240px;
+  display: block;
+  text-align: center;
+}
+.picsize:hover {
+  border: 1px solid gainsboro;
+}
+.short-description{
+  font-size: 10px;
+}
+
+.addCart {
+  font-size: 16px;
+  text-align: center;
+  position: relative;
+}
+
+.cardName {
+  font-size: 16px;
+  text-align: center;
+  font-style: italic;
+  position: relative;
+  top: 6px;
+}
+.cardPrice {
+  font-size: 20px;
+  text-align: center;
+  font-style: italic;
+  position: relative;
+  top: 6px;
+  color: #721c24;
+}
+.addCartCenter{
+  text-align: center;
+  margin-bottom: 20px;
+}

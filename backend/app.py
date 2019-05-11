@@ -327,7 +327,14 @@ def display_all():
     result = []
     for item in items:
         result.append({"id": item.id, "name": item.name, "price": item.price, "picture": item.picurl, "category": item.category})
+
     return jsonify(result), 200
+
+
+def test(e):
+    print()
+    return e.reviewtime
+
 
 # display the specific item'id,name,price,picture before login
 @app.route('/display/detail', methods=['POST'])
@@ -345,13 +352,16 @@ def display_detail():
     reviewsresult = Review.query.filter_by(item_id=item_id).all()
     for review in reviewsresult:
         user = User.query.filter_by(id=review.user_id).first()
-        reviews.append({"username": user.username, "reviewtime": review.reviewtime,  "comment": review.comment})
+        reviews.append({"username": user.username, "reviewtime": review.reviewtime,  "comment": review.comment, "hasreview": not review.reviewable})
+
+    newlists = sorted(reviews, key=lambda k: k['reviewtime'])
+
     item = Item.query.filter_by(id=item_id).first()
     if item is None:
         return jsonify({'msg': 'Item is not existed'}), 400
     else:
 
-        return jsonify({"item_detail": item.to_dict(), "review": reviews}), 200
+        return jsonify({"item_detail": item.to_dict(), "review": newlists}), 200
 
 
 @app.route('/manager/setupitems', methods=['POST'])
@@ -525,9 +535,10 @@ def manager_pickup():
         order.ifpickup = True
         order.status = "completed"
         db.session.commit()
-        reviews = Review.query.filter_by(user_id=client.id, order_id=order_id).all()
-        for review in reviews:
-            review.reviewable = True
+    reviews = Review.query.filter_by(order_id=order_id).all()
+    for review in reviews:
+        review.reviewable = True
+    db.session.commit()
     return jsonify({'msg': "Order pick up successfully"}), 200
 
 

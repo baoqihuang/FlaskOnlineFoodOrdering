@@ -1,0 +1,79 @@
+.bg-dark{
+    background-color: #37474f !important;
+}
+.navbar-expand {
+    justify-content: flex-end;
+    font-size: 32px;
+}
+.logo{
+    margin-top: 50px;
+}
+.align {
+    margin-left: 0px;
+}
+.dropdown-item.active, .dropdown-item:active {
+    color: #fff;
+    text-decoration: none;
+    background-color: #c62828;
+}
+.vertical-menu {
+    margin-top: 166px;
+    position: absolute;
+    left: 0;
+    top: 200px;
+    width: 220px; /* Set a width if you like */
+    font-size: x-large;
+}
+
+.vertical-menu a {
+    background-color: #eee; /* Grey background color */
+    color: black; /* Black text color */
+    display: block; /* Make the links appear below each other */
+    padding: 33px; /* Add some padding */
+    text-decoration: none; /* Remove underline from links */
+}
+
+.vertical-menu a:hover {
+    background-color: #4CAF50; /* Dark grey background on mouse-over */
+}
+
+.vertical-menu a.active {
+    background-color: #4CAF50; /* Add a green color to the "active/current" link */
+    color: white;
+}
+
+
+
+ul {
+    list-style-type: none;
+    margin: -10px;
+    padding: 7px;
+    overflow: hidden;
+    background-color: #eee;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 3px 106px;
+    text-decoration: none;
+}
+
+li a:hover:not(.active) {
+    background-color: #4CAF50;
+}
+
+.active {
+    background-color: #4CAF50;
+}
+.cardBox {
+    width: 100%;
+    padding-left: 200px;
+    padding-right: 50px;
+    margin-left: 43px;
+}

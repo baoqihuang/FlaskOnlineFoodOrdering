@@ -1,0 +1,39 @@
+#map {
+    height: 100vh;
+    width: 50%;
+    margin-left: 20px;
+    margin-bottom:100px;
+    display: inline-block;
+}
+
+/* Optional: Makes the sample page fill the window. */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#right-panel {
+    font-family: 'Roboto','sans-serif';
+    line-height: 30px;
+    padding-left: 10px;
+    display: inline-block;
+}
+
+#right-panel select, #right-panel input {
+    font-size: 12px;
+}
+
+#right-panel select {
+    width: 50%;
+}
+
+#right-panel i {
+    font-size: 12px;
+}
+#right-panel {
+    height: 100%;
+    float: right;
+    width: 390px;
+    overflow: auto;
+}

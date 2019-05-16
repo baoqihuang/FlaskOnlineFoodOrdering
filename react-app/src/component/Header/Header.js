@@ -101,7 +101,7 @@ class Header extends Component {
             case 'meal': {
                 console.log(this.state.nameData);
                 nameData = allData.filter(function (meal) {
-                    return meal.category === "meal";
+                    return meal.category === "Meal";
                 });
                 console.log(nameData);
                 break;
@@ -123,7 +123,7 @@ class Header extends Component {
             }
             case 'appetizer': {
                 nameData = allData.filter(function (appetizer) {
-                    return appetizer.category === "appetizer";
+                    return appetizer.category === "Appetizer";
                 });
                 console.log(nameData);
                 break;
@@ -146,7 +146,7 @@ class Header extends Component {
             <div>
 
                 <img  width="300" height="200" className="rounded mx-auto d-block logo" src={logo}/>
-                <Navbar align="right" bg="white" variant="light" className="align">
+                <Navbar align="right"  variant="light" className="align">
                     <Nav className="float-right">
 
                         <ul>
@@ -189,7 +189,7 @@ class Header extends Component {
                     }}>Drinks</a>
                     <a onClick={(event) => {
                         this.meunHandler('appetizer', event)
-                    }}>Salad</a>
+                    }}>Appetizer</a>
 
 
                 </div>

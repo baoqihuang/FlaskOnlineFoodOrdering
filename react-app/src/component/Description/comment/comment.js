@@ -114,7 +114,7 @@ function BottomComment(props) {
                 </Typography>
                 <List className={classes.list}>
                     {props.review.map((item, idx) => (
-                        item.hasreview &&
+                        item.comment != "" &&
                         <Fragment key={idx}>
                             {/*{id === 1 && <ListSubheader className={classes.subHeader}>Today</ListSubheader>}*/}
                             {/*{id === 3 && <ListSubheader className={classes.subHeader}>Yesterday</ListSubheader>}*/}

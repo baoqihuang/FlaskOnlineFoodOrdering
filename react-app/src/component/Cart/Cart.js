@@ -196,7 +196,7 @@ componentDidMount() {
         return (
             <div>
                 <img  width="300" height="200" className="rounded mx-auto d-block logo" src={logo}/>
-                <Navbar align="right" bg="white" variant="light">
+                <Navbar align="right" variant="light">
                     <Nav className="float-right">
 
                         <ul>
@@ -266,10 +266,10 @@ componentDidMount() {
                                 </div>
                                 <div className="panel-footer">
                                     <div className="row text-center">
-                                        <div className="col-xs-9 cartInline">
-                                            <h4 className="text-right">Total <strong>${this.state.totalPrice}</strong></h4>
+                                        <div className="col-xs-9">
+                                            <h4 className="text-right">Order Total <strong> ${this.state.totalPrice}</strong></h4>
                                         </div>
-                                        <div className="col-xs-3 pad1 cartInline">
+                                        <div className="col-xs-3 pad1">
 
                                                 <button type="button" className="btn btn-success btn-block" onClick={() => this.goToCheckOut()}>
                                                     Checkout

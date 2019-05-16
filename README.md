@@ -1,7 +1,6 @@
 # FlaskOnlineFoodOrdering
-# Online Bank
-This project is an online web-based bank system 
-using React and Flask 
+This project is an online web-based food ordering system 
+using React, Flask and SQLAlchemy
 
 # Git setup
 Install [Git](https://git-scm.com/)

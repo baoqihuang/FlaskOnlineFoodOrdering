@@ -35,6 +35,44 @@ bcrypt = Bcrypt(app)
 f_jwt.init_app(app)
 
 
+class Userorders(db.Model):
+    user_id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, primary_key=True)
+
+    def __init__(self, user_id=None, order_id=None):
+        self.user_id = user_id
+        self.order_id = order_id
+
+    def __repr__(self):
+        return '<User %r>' % self.username
+
+    def to_dict(self):
+        result = {"user_id": self.user_id, "order_id": self.order_id}
+        return result
+
+
+class DeletedOrder(db.Model):
+    user_id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, primary_key=True)
+    total = db.Column(db.Float, unique=False, nullable=False)
+    time = db.Column(db.DateTime, unique=False, nullable=False)
+    status = db.Column(db.String(20), unique=False, nullable=False)
+
+    def __init__(self, user_id=None, order_id=None, total=None, time=None, status=None):
+        self.order_id = order_id
+        self.user_id = user_id
+        self.total = total
+        self.time = time
+        self.status = status
+
+    def __repr__(self):
+        return '<Order %r>' % self.id
+
+    def to_dict(self):
+        result = {"user_id": self.id, "order_id": self.total, "time": self.time, "status": self.status}
+        return result
+
+
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)

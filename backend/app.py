@@ -6,6 +6,8 @@ from pathlib import Path
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
+from flask_heroku import Heroku
+
 f_jwt = JWTManager()
 
 

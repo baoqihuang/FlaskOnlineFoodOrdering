@@ -20,8 +20,7 @@ def check_if_token_in_blacklist(decrypted_token):
 
 class Config:
     project_dir = os.path.dirname(os.path.abspath(__file__))
-    database_file = "sqlite:///{}".format(os.path.join(project_dir, "usersinfo.db"))
-    SQLALCHEMY_DATABASE_URI = database_file
+    SQLALCHEMY_DATABASE_URI = 'postgresql://michaelhuang:Hbq5714326@localhost/michaelhuang'
     SECRET_KEY = 'dev'
     FLASK_ENV = 'development'
 
@@ -258,11 +257,12 @@ def login_user():
         return jsonify({'msg': 'Bad Request, missing/misspelled key'}), 400
 
     client = User.query.filter_by(username=username).first()
+    # print (client.password)
 
     if not client:
         return jsonify({'msg': 'Invalid username/password'}), 409
 
-    valid = bcrypt.check_password_hash(client.password.decode('UTF-8'), password)
+    valid = bcrypt.check_password_hash(client.password, password)
     if not valid:
         return jsonify({'msg': 'Invalid username/password'}), 409
 
@@ -321,7 +321,8 @@ def register_user():
 
     user = User.query.filter_by(username=username).filter_by(email=email).first()
     if user is None:
-        pw_hash = bcrypt.generate_password_hash(password.encode('UTF-8'))
+        pw_hash = str(bcrypt.generate_password_hash(password.encode('UTF-8')))
+        pw_hash = pw_hash[2:-1]
         newuser = User(first, last, email, username, pw_hash, user_type, phonenumber)
         db.session.add(newuser)
         db.session.commit()

@@ -6,7 +6,6 @@ from pathlib import Path
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
-from flask_heroku import Heroku
 
 f_jwt = JWTManager()
 
@@ -21,8 +20,7 @@ def check_if_token_in_blacklist(decrypted_token):
 
 
 class Config:
-    project_dir = os.path.dirname(os.path.abspath(__file__))
-    SQLALCHEMY_DATABASE_URI = 'postgresql://michaelhuang:Hbq5714326@localhost/michaelhuang'
+    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
     SECRET_KEY = 'dev'
     FLASK_ENV = 'development'
 

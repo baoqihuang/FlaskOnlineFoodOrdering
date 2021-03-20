@@ -8,7 +8,7 @@ flask-heroku==0.1.9
 Flask-JWT-Extended==3.18.1
 Flask-SQLAlchemy==2.3.2
 itsdangerous==1.1.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 MarkupSafe==1.1.1
 psycopg2==2.8.2
 pycparser==2.19
